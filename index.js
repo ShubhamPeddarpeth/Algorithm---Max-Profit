@@ -1,44 +1,67 @@
+
 function maxProfit(n) {
-  // Building types (time, earning)
+
   const buildings = [
-    { name: 'T', time: 5, earn: 1500 },
-    { name: 'P', time: 4, earn: 1000 },
-    { name: 'C', time: 10, earn: 2000 },
+    { type: "T", time: 5, earning: 1500 },
+    { type: "P", time: 4, earning: 1000 },
+    { type: "C", time: 10, earning: 2000 }
   ];
 
-  // DP array where dp[i] = {earn, combo}
-  const dp = Array(n + 1)
-    .fill(null)
-    .map(() => ({
-      earn: 0,
-      combo: { T: 0, P: 0, C: 0 },
-    }));
+  let bestProfit = 0;
+  let solutions = [];
 
-  // Fill DP table
-  for (let t = 1; t <= n; t++) {
-    for (let b of buildings) {
-      if (t >= b.time) {
-        const prev = dp[t - b.time]; // state after finishing this building
-        const newEarn = prev.earn + b.earn;
+  for (let t = 0; t <= Math.floor(n/5); t++) {
+    for (let p = 0; p <= Math.floor(n/4); p++) {
+      for (let c = 0; c <= Math.floor(n/10); c++) {
 
-        if (newEarn > dp[t].earn) {
-          // update best solution for current time t
-          dp[t] = {
-            earn: newEarn,
-            combo: {
-              ...prev.combo,
-              [b.name]: prev.combo[b.name] + 1,
-            },
-          };
+        let timeUsed = t*5 + p*4 + c*10;
+
+        if (timeUsed > n) continue;
+
+        let profit = 0;
+        let currentTime = 0;
+
+        for (let i=0;i<t;i++) {
+          currentTime += 5;
+          profit += 1500 * (n-currentTime);
         }
+
+        for (let i=0;i<p;i++) {
+          currentTime += 4;
+          profit += 1000 * (n-currentTime);
+        }
+
+        for (let i=0;i<c;i++) {
+          currentTime += 10;
+          profit += 2000 * (n-currentTime);
+        }
+
+        if (profit > bestProfit) {
+          bestProfit = profit;
+          solutions = [{T:t,P:p,C:c}];
+        }
+
+        else if (profit === bestProfit) {
+          solutions.push({T:t,P:p,C:c});
+        }
+
       }
     }
   }
 
-  return dp[n];
+  return {
+    earnings:  bestProfit,
+   solutions:solutions.sort((a,b) => {
+
+    if (b.T !== a.T) return b.T - a.T;
+    if (b.P !== a.P) return b.P - a.P;
+    return b.C - a.C;
+  })
+};
+
 }
 
-// Testing the function with sample inputs
-console.log('n=7 →', maxProfit(7));
-console.log('n=8 →', maxProfit(8));
-console.log('n=13 →', maxProfit(13));
+
+console.log(maxProfit(7))
+console.log(maxProfit(8))
+console.log(maxProfit(13))
